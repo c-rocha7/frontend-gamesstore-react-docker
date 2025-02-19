@@ -1,0 +1,31 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: frontend_gamesstore
+    ports:
+      - "${VITE_PORT_EXPORT_REACT:-5173}:${VITE_PORT_DEFAULT_REACT:-5173}"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - network-gamesstore
+
+networks:
+  network-gamesstore:
+    external: true
+    name: network-gamesstore
+
+volumes:
+  node_modules:
